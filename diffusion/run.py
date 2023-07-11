@@ -26,12 +26,8 @@ args = parser.parse_args()
 
 def main(args=args):
     images = get_images(args.folder_name)
-    
+
     prompt = "best quality, extremely detailed"
-    
-    generator = [torch.Generator(device="cuda").manual_seed(102) for i in range(batch_size)]
-    
-    
     
     return pass
     
