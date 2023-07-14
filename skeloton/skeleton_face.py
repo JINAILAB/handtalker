@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 
 # jason file 불러오기
 
+
 def face_keypoints(json_file):
-    with open(json_file, 'r') as file:
+    with open(json_file, "r") as file:
         data = json.load(file)
     # data_json = data['people']['face_keypoints_2d']
-    keypoints = np.array(data['people']['face_keypoints_2d']).reshape(-1, 3)
+    keypoints = np.array(data["people"]["face_keypoints_2d"]).reshape(-1, 3)
     return keypoints
+
 
 ## matplot으로 그려보기
 # plt.scatter(keypoints[:, 0], keypoints[:, 1])
@@ -34,6 +36,7 @@ def face_keypoints(json_file):
 # 48~59 겉입술
 # 60~~67 속입술
 
+
 def draw_face(keypoints, canvas):
     for i in range(len(keypoints)):
         x, y, c = keypoints[i]
@@ -41,23 +44,24 @@ def draw_face(keypoints, canvas):
         cv2.circle(canvas, (int(x), int(y)), 4, [225, 225, 225], thickness=-1)
     return canvas
 
+
 # 그리고 저장하기
 # Load json data
+json_path = "./hand/hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000"  # {i:03d}_keypoints.json"
 filename = []
-for i in range(10, 71, 10):
-    filename.append(f"./keypoint_json/NIA_SL_WORD1507_REAL01_F_0000000000{i}_keypoints.json")
-# print(filename)
+for i in range(0, 241, 5):
+    filename.append(json_path + f"{i:03d}_keypoints.json")
+print(filename)
 
 for file in filename:
     data = face_keypoints(file)
-    
+
     # canvas 설정
     canvas = np.zeros((1280, 2000, 3), dtype=np.uint8)
 
     # Draw the face pose on the canvas
     canvas = draw_face(data, canvas)
     # 저장하기
-    cv2.imwrite(f'./res_face_pose_image/pose_face_{file[-18:-15]}.png', canvas)
-
-    
-
+    cv2.imwrite(
+        f"./controlnet/res_face_pose_image/pose_face_{file[-18:-15]}.png", canvas
+    )

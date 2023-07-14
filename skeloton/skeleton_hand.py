@@ -38,16 +38,16 @@ for rgb_color in rgb_colors:
     bgr_color = [rgb_tuple[2], rgb_tuple[1], rgb_tuple[0]]
     bgr_colors.append(bgr_color)
 
-# print(bgr_colors)
+# print(bgr_colors) rbg
 # [[14, 40, 190], [0, 201, 161], [60, 199, 0], [158, 81, 34], [205, 0, 179]]
 
 
-def draw_hand(json_data, canvas):
+def draw_hand_right(json_data, canvas):
     limbSeq = [
         [0, 1],
         [1, 2],
         [2, 3],
-        [3, 4],  # 엄지
+        # [3, 4],  # 엄지
         [0, 5],
         [5, 6],
         [6, 7],
@@ -105,34 +105,113 @@ def draw_hand(json_data, canvas):
             end_point = (int(x2), int(y2))  # ensure coordinates are int
             color = limSeq_color[i]
             thickness = 4
-            cv2.line(canvas, start_point, end_point, color, thickness)  # draw line
+            cv2.line(
+                canvas,
+                start_point,
+                end_point,
+                matplotlib.colors.hsv_to_rgb([i / float(len(limbSeq)), 1.0, 1.0])
+                * 255,  # rbg  brg
+                thickness,
+            )  # draw line
     # joint
     for i in range(len(json_data)):
-        x, y, c = json_data[i]
+        if i != 4:
+            x, y, c = json_data[i]
 
-        cv2.circle(canvas, (int(x), int(y)), 5, [255, 0, 0], thickness=-1)
+            cv2.circle(canvas, (int(x), int(y)), 5, [0, 0, 255], thickness=-1)
 
     return canvas
 
 
+def draw_hand_left(json_data, canvas):
+    limbSeq = [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        # [3, 4],  # 엄지
+        [0, 5],
+        [5, 6],
+        [6, 7],
+        [7, 8],  # 검지
+        [0, 9],
+        [9, 10],
+        [10, 11],
+        [11, 12],  # 중지
+        [0, 13],
+        [13, 14],
+        [14, 15],
+        [15, 16],  # 약지
+        [0, 17],
+        [17, 18],
+        [18, 19],
+        [19, 20],
+    ]
+
+    # limbSeq
+    for i in range(len(limbSeq)):
+        idx = limbSeq[i]
+        x1, y1, c1 = json_data[idx[0]]
+        x2, y2, c2 = json_data[idx[1]]
+        if c1 != 0 and c2 != 0:
+            start_point = (int(x1), int(y1))  # ensure coordinates are int
+            end_point = (int(x2), int(y2))  # ensure coordinates are int
+            thickness = 4
+            cv2.line(
+                canvas,
+                start_point,
+                end_point,
+                matplotlib.colors.hsv_to_rgb(
+                    [((len(limbSeq) - i - 3) / float(len(limbSeq))), 1.0, 1.0]
+                )
+                * 255,  # rbg  brg
+                thickness,
+            )  # draw line
+    # joint
+    for i in range(len(json_data)):
+        if i != 4:
+            x, y, c = json_data[i]
+
+            cv2.circle(canvas, (int(x), int(y)), 5, [0, 0, 255], thickness=-1)
+
+    return canvas
+
+
+## 파일 불러오기
+# json_path = f"./hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000{i:03d}_keypoints.json"
+# Load json data
+json_path = "./hand/hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000"  # {i:03d}_keypoints.json"
 filename = []
-for i in range(10, 71, 10):
-    filename.append(
-        f"./keypoint_json/NIA_SL_WORD1507_REAL01_F_0000000000{i}_keypoints.json"
-    )
+for i in range(0, 241, 5):
+    filename.append(json_path + f"{i:03d}_keypoints.json")
+# print(filename)
 # print(filename)
 
 for name in filename:
     data_right = json2keypoints(name, "right")
     data_left = json2keypoints(name, "left")
+    # data_left = np.flip(data_left, axis=0)
 
     # canvas 설정
     canvas_right = np.zeros((1280, 2000, 3), dtype=np.uint8)
     canvas_left = np.zeros((1280, 2000, 3), dtype=np.uint8)
 
     # Draw the face pose on the canvas
-    canvas_right = draw_hand(data_right, canvas_right)
-    canvas_left = draw_hand(data_left, canvas_left)
+    canvas_right = draw_hand_right(data_right, canvas_right)
+    canvas_left = draw_hand_left(data_left, canvas_left)
 
-    cv2.imwrite(f"./res_hand_pose_image/pose_right{name[-18:-15]}.png", canvas_right)
-    cv2.imwrite(f"./res_hand_pose_image/pose_left{name[-18:-15]}.png", canvas_left)
+    cv2.imwrite(
+        f"./res_hand_pose_image/pose_right{name[-18:-15]}_new.png", canvas_right
+    )
+    cv2.imwrite(f"./res_hand_pose_image/pose_left{name[-18:-15]}_new.png", canvas_left)
+
+    # rgb
+    rgb_image_right = cv2.cvtColor(canvas_right, cv2.COLOR_BGR2RGB)
+    rgb_image_left = cv2.cvtColor(canvas_left, cv2.COLOR_BGR2RGB)
+    cv2.imwrite(
+        f"./controlnet/res_hand_pose_image/pose_right{name[-18:-15]}_rgb.png",
+        rgb_image_right,
+    )
+    cv2.imwrite(
+        f"./controlnet/res_hand_pose_image/pose_left{name[-18:-15]}_rgb.png",
+        rgb_image_left,
+    )

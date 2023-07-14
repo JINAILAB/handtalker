@@ -5,11 +5,10 @@ import math
 
 # jason file 불러오기
 
-
-def plot_keypoints(json_file):
+def face_keypoints(json_file):
     with open(json_file, "r") as file:
         data = json.load(file)
-
+    # data_json = data['people']['face_keypoints_2d']
     keypoints = np.array(data["people"]["pose_keypoints_2d"]).reshape(-1, 3)
     return keypoints
 
@@ -28,8 +27,12 @@ def draw_bodypose_from_json(json_data, canvas):
         [4, 5],  # 오른팔
         [6, 7],
         [7, 8],  # 왼팔
-        [2, 10],  # 오른 엉덩이 # [9, 10], [10, 11], # 왼다리
-        [2, 13],  # 왼 엉덩이  # [12, 13], [13, 14], # 오른다리
+        [2, 10],
+        # [10, 11],
+        # [11, 24],  # 오른다리
+        [2, 13],
+        # [13, 14],
+        # [14, 20],  # 왼다리
         [2, 1],  # 목
         [1, 16],
         [16, 18],  # 오른 얼굴
@@ -46,18 +49,22 @@ def draw_bodypose_from_json(json_data, canvas):
     #           ] # 11
     colors = [
         [153, 0, 1],
-        [153, 51, 1],
+        [153, 51, 1],  # 어깨
         [152, 102, 1],
-        [153, 153, 0],
+        [153, 153, 0],  # 오른팔
         [102, 152, 0],
-        [55, 152, 9],
+        [55, 152, 9],  # 왼팔
         [4, 154, 1],
+        # [112, 151, 2],
+        # [101, 153, 0],  # 오른 궁뎅이
         [28, 148, 145],
-        [0, 0, 152],
+        # [0, 101, 155],
+        # [3, 51, 155],  # 왼 궁뎅이
+        [0, 0, 152],  # 목
         [59, 1, 151],
-        [99, 1, 153],
+        [99, 1, 153],  # 오른 얼굴
         [193, 5, 188],
-        [160, 0, 104],
+        [160, 0, 104],  # 왼 얼굴
     ]
 
     joint_colors = [
@@ -71,7 +78,7 @@ def draw_bodypose_from_json(json_data, canvas):
         [0, 255, 85],
         [0, 0, 0],
         [4, 154, 1],
-        [0, 0, 0],
+        [0, 0, 0],  # 10
         [0, 0, 0],
         [28, 148, 145],
         [0, 0, 0],
@@ -79,16 +86,8 @@ def draw_bodypose_from_json(json_data, canvas):
         [255, 0, 255],
         [255, 0, 170],
         [255, 0, 85],
-        [255, 0, 85],
+        [255, 0, 85],  # 18
     ]
-
-    # Draw keypoints on the canvas
-    num = list(range(8)) + list(range(15, 20)) + [9, 12]
-    for i in range(19):
-        if i in num:
-            x, y, c = json_data[i]
-            if c != 0:
-                cv2.circle(canvas, (int(x), int(y)), 4, joint_colors[i], thickness=10)
 
     # Draw limbs on the canvas
     for i in range(len(limbSeq)):
@@ -101,6 +100,14 @@ def draw_bodypose_from_json(json_data, canvas):
             color = colors[i]
             thickness = 10
             cv2.line(canvas, start_point, end_point, colors[i], thickness)  # draw line
+    # Draw keypoints on the canvas
+
+    num = list(range(8)) + list(range(15, 20)) + [9, 12]
+    for i in range(19):
+        if i in num:
+            x, y, c = json_data[i]
+            if c != 0:
+                cv2.circle(canvas, (int(x), int(y)), 4, joint_colors[i], thickness=10)
 
     # cv2.imshow('Canvas', canvas)
     # cv2.waitKey(0)
@@ -112,14 +119,15 @@ def draw_bodypose_from_json(json_data, canvas):
 import matplotlib.pyplot as plt
 
 # Load json data
+
+json_path = "./hand/hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000"  # {i:03d}_keypoints.json"
 filename = []
-for i in range(10, 71, 10):
-    filename.append(
-        f"./keypoint_json/NIA_SL_WORD1507_REAL01_F_0000000000{i}_keypoints.json"
-    )
+for i in range(0, 241, 5):
+    filename.append(json_path + f"{i:03d}_keypoints.json")
 print(filename)
 
-for file in filename:
+
+for idx, file in enumerate(filename):
     # with open(file, 'r') as f:
     #     data = json.load(f)
     data = plot_keypoints(file)
@@ -136,4 +144,4 @@ for file in filename:
     # cv2.imwrite(f'pose_body_{file[-18:-15]}.png', canvas)
     # RGB 형식으로 변환하여 저장
     rgb_image = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
-    cv2.imwrite(f"./res_body_pose_image/pose_body_hip{file[-18:-15]}.png", rgb_image)
+    cv2.imwrite(f"./controlnet/res_body_pose_image/pose_body{idx*5:03d}.png", rgb_image)
