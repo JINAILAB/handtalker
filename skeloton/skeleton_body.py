@@ -5,6 +5,7 @@ import math
 
 # jason file 불러오기
 
+
 def face_keypoints(json_file):
     with open(json_file, "r") as file:
         data = json.load(file)
@@ -119,10 +120,11 @@ def draw_bodypose_from_json(json_data, canvas):
 import matplotlib.pyplot as plt
 
 # Load json data
-
-json_path = "./hand/hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000"  # {i:03d}_keypoints.json"
+# hand/hand/10_real_word_keypoint/NIA_SL_WORD0022_REAL10_F
+# hand/hand/10_real_word_keypoint/NIA_SL_WORD0022_REAL10_F/NIA_SL_WORD0022_REAL10_F_000000000000_keypoints.json
+json_path = "./hand/hand/10_real_word_keypoint/NIA_SL_WORD0022_REAL10_F/NIA_SL_WORD0022_REAL10_F_000000000"
 filename = []
-for i in range(0, 241, 5):
+for i in range(0, 132, 3):
     filename.append(json_path + f"{i:03d}_keypoints.json")
 print(filename)
 
@@ -130,7 +132,7 @@ print(filename)
 for idx, file in enumerate(filename):
     # with open(file, 'r') as f:
     #     data = json.load(f)
-    data = plot_keypoints(file)
+    data = face_keypoints(file)
     # Create a blank canvas
     canvas = np.zeros((1280, 2000, 3), dtype=np.uint8)
 
@@ -144,4 +146,6 @@ for idx, file in enumerate(filename):
     # cv2.imwrite(f'pose_body_{file[-18:-15]}.png', canvas)
     # RGB 형식으로 변환하여 저장
     rgb_image = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
-    cv2.imwrite(f"./controlnet/res_body_pose_image/pose_body{idx*5:03d}.png", rgb_image)
+    cv2.imwrite(
+        f"./controlnet/res_body_pose_image/pose_body{idx*3:03d}_dot.png", rgb_image
+    )
