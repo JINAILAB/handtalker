@@ -179,9 +179,9 @@ def draw_hand_left(json_data, canvas):
 ## 파일 불러오기
 # json_path = f"./hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000{i:03d}_keypoints.json"
 # Load json data
-json_path = "./hand/hand/03_real_word_keypoint/NIA_SL_WORD0006_REAL03_F/NIA_SL_WORD0006_REAL03_F_000000000"  # {i:03d}_keypoints.json"
+json_path = "./hand/hand/10_real_word_keypoint/NIA_SL_WORD0022_REAL10_F/NIA_SL_WORD0022_REAL10_F_000000000"
 filename = []
-for i in range(0, 241, 5):
+for i in range(0, 132, 3):
     filename.append(json_path + f"{i:03d}_keypoints.json")
 # print(filename)
 # print(filename)

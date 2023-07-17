@@ -18,4 +18,4 @@ for image in images_file:
 # 이미지를 GIF로 변환
 
 images = [imageio.imread(filename) for filename in folder]
-imageio.mimsave("./output.gif", images, "GIF", duration=1.0)
+imageio.mimsave("./output.mp4", images, "MP4", duration=1.0)
